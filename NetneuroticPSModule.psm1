@@ -111,3 +111,30 @@ function VIConnect
         return 1
     }#if
 }
+
+function GetVMIp([string]$sVMName)
+{
+    if (!$sVMName){
+        Write-Host "Get-VMIP.ps1 sVMName"
+        return
+    }#if
+
+    try {
+    $vm = Get-VM $sVMName
+    } catch {
+        Write-Host "No connection to vSphere?"
+        return
+    }#try
+
+    if ($vm.PowerState -ne "PoweredOn") {
+        Start-VM $vm -Confirm:0 >$null
+    }#if
+
+    Wait-Tools -VM $vm -TimeoutSeconds 300 >$null
+
+    $view = Get-View $vm
+    $guest = $view.Guest
+    $ip = $guest.IpAddress
+
+    return $ip
+}

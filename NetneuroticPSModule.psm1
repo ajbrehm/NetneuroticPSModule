@@ -138,3 +138,26 @@ function GetVMIp([string]$sVMName)
 
     return $ip
 }
+
+function sec2s([SecureString]$sec)
+{
+    $s = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec))
+    return $s
+}
+function CreateAuthHeader([string]$sUserName,[string]$sPassword)
+{
+    if (!$sUserName) {
+        Write-Host "CreateCrumb sUserName [sPassword]"
+        return
+    }#if
+
+    if (!$sPassword) {
+        $sPassword = sec2s (Read-Host "Password" -AsSecureString)
+    }#if
+
+    $sPair = $sUserName + ":" + $sPassword
+    $encPair = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($sPair))
+    $header = @{}
+    $header.Authorization="Basic $encPair"
+    return $header
+}

@@ -139,6 +139,10 @@ function GetVMIp([string]$sVMName)
     return $ip
 }
 
+function ilocon([string]$sRIBName)
+{
+    & "C:\Program Files (x86)\Hewlett Packard Enterprise\HPE iLO Integrated Remote Console\HPLOCONS.exe" -addr $sRIBName
+}
 function sec2s([SecureString]$sec)
 {
     $s = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec))

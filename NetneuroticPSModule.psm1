@@ -165,3 +165,30 @@ function CreateAuthHeader([string]$sUserName,[string]$sPassword)
     $header.Authorization="Basic $encPair"
     return $header
 }
+
+function VMwareAddSerialPort([string]$sVMName,[int]$port)
+{
+    if (!$port){
+        Write-Host "addserialport sVMName port"
+        return
+    }#if
+    $vm = Get-VM -Name $sVMName
+    $dcs = New-Object VMware.Vim.VirtualDeviceConfigSpec
+    $dcs.Operation = "add"
+    $dcs.Device = New-Object VMware.Vim.VirtualSerialPort
+    $dcs.Device.Key = -1
+    $dcs.Device.Backing = New-Object VMware.Vim.VirtualSerialPortURIBackingInfo
+    $dcs.Device.Backing.Direction = "server"
+    $dcs.Device.Backing.ServiceURI = "telnet://:$port"
+    $dcs.Device.Connectable = New-Object VMware.Vim.VirtualDeviceConnectInfo
+    $dcs.Device.Connectable.Connected = $true
+    $dcs.Device.Connectable.StartConnected = $true
+    $dcs.Device.YieldOnPoll = $true
+    $cs = New-Object VMware.Vim.VirtualMachineConfigSpec
+    $cs.DeviceChange += $dcs
+    $vm.ExtensionData.ReconfigVM($cs)
+    New-AdvancedSetting -Entity $vm -Name serial0.fileName -Value "telnet://:$port" -Confirm:$False -Force:$True
+    New-AdvancedSetting -Entity $vm -Name serial0.fileType -Value "network" -Confirm:$False -Force:$True
+    New-AdvancedSetting -Entity $vm -Name serial0.present -Value TRUE -Confirm:$False -Force:$True
+    New-AdvancedSetting -Entity $vm -Name serial0.yieldOnMsrRead -Value TRUE -Confirm:$False -Force:$True
+}

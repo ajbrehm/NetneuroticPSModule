@@ -166,7 +166,7 @@ function CreateAuthHeader([string]$sUserName,[string]$sPassword)
     return $header
 }
 
-function VMwareAddSerialPort([string]$sVMName,[int]$port)
+function VMAddSerialPort([string]$sVMName,[int]$port)
 {
     if (!$port){
         Write-Host "addserialport sVMName port"
@@ -187,8 +187,13 @@ function VMwareAddSerialPort([string]$sVMName,[int]$port)
     $cs = New-Object VMware.Vim.VirtualMachineConfigSpec
     $cs.DeviceChange += $dcs
     $vm.ExtensionData.ReconfigVM($cs)
-    New-AdvancedSetting -Entity $vm -Name serial0.fileName -Value "telnet://:$port" -Confirm:$False -Force:$True
-    New-AdvancedSetting -Entity $vm -Name serial0.fileType -Value "network" -Confirm:$False -Force:$True
-    New-AdvancedSetting -Entity $vm -Name serial0.present -Value TRUE -Confirm:$False -Force:$True
-    New-AdvancedSetting -Entity $vm -Name serial0.yieldOnMsrRead -Value TRUE -Confirm:$False -Force:$True
+}
+
+function VMForceEfiBoot([string]$sVMName)
+{
+    $vm = Get-VM -Name $sVMName
+    $cs = New-Object VMware.Vim.VirtualMachineConfigSpec
+    $cs.BootOptions = New-Object VMware.Vim.VirtualMachineBootOptions
+    $cs.BootOptions.EnterBIOSSetup = $true
+    $vm.ExtensionData.ReconfigVM($cs)
 }

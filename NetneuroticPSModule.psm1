@@ -173,6 +173,9 @@ function VMAddSerialPort([string]$sVMName,[int]$port)
         return
     }#if
     $vm = Get-VM -Name $sVMName
+    if ($vm.ExtensionData.Config.Hardware.Device| Where-Object {$_.DeviceInfo.Summary -like "*telnet*$port"}) {
+        return
+    }#if
     $dcs = New-Object VMware.Vim.VirtualDeviceConfigSpec
     $dcs.Operation = "add"
     $dcs.Device = New-Object VMware.Vim.VirtualSerialPort
@@ -187,6 +190,10 @@ function VMAddSerialPort([string]$sVMName,[int]$port)
     $cs = New-Object VMware.Vim.VirtualMachineConfigSpec
     $cs.DeviceChange += $dcs
     $vm.ExtensionData.ReconfigVM($cs)
+    #New-AdvancedSetting -Entity $vm -Name serial0.fileName -Value "telnet://:$port" -Confirm:$false -Force:$true
+    #New-AdvancedSetting -Entity $vm -Name serial0.fileType -Value "network" -Confirm:$false -Force:$true
+    #New-AdvancedSetting -Entity $vm -Name serial0.present -Value TRUE -Confirm:$false -Force:$true
+    #New-AdvancedSetting -Entity $vm -Name serial0.yieldOnMsrRead -Value TRUE -Confirm:$false -Force:$true
 }
 
 function VMForceEfiBoot([string]$sVMName)

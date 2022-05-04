@@ -92,10 +92,14 @@ function VIConnect
         }#if
         $credential = ReadCredentialFile $pathCredentialFile
     } else {
-        $credential = Get-Credential
-        if ((Read-Host "Save this credential? [y/n]") -eq "y") {
-            WriteCredentialFile $credential
-            if ($?) {Inform "Wrote encrypted password to [$pathCredentialFile]."}
+        if ($Global:VIConnectCredential) {
+            $credential = $Global:VIConnectCredential
+        } else {
+            $credential = Get-Credential
+            if ((Read-Host "Save this credential? [y/n]") -eq "y") {
+                WriteCredentialFile $credential
+                if ($?) {Inform "Wrote encrypted password to [$pathCredentialFile]."}
+            }#if
         }#if
     }#if
 

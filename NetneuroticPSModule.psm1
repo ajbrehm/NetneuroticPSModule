@@ -77,6 +77,7 @@ function VIConnect
         Inform "VIConnect sVIServer [pathCredentialFile]"
         Warn "Disconnect from all VIServers:"
         Inform "VIConnect -"
+        Warn "VIConnect will use a credential `$Global:VIConnectCredential if it exists."
         return
     }#if
 

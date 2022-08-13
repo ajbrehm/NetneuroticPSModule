@@ -209,3 +209,32 @@ function VMForceEfiBoot([string]$sVMName)
     $cs.BootOptions.EnterBIOSSetup = $true
     $vm.ExtensionData.ReconfigVM($cs)
 }
+
+function lsjobs
+{
+    $global:aResult = @()
+    do {
+
+        Clear-Host
+        ""
+        ""
+        ""
+        ""
+        ""
+        ""
+        ""
+        ""
+        Get-Job | Format-Table
+        $aCurrentResult = Receive-Job * | Format-Table
+        $aCurrentResult
+        $global:aResult += $aCurrentResult
+        Start-Sleep 5
+
+    } until((Get-Job -State Completed).Count -eq (Get-Job).Count)
+
+    Clear-Host
+    Get-Job | Format-Table
+    Get-Job -State Completed | Remove-Job
+    $aResult
+
+}

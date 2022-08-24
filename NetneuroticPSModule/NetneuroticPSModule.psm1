@@ -67,14 +67,14 @@ function VIConnect
 {
     param(
         $sVIServer,
-        $pathCredentialFile
+        $credential
     )
 
     $ErrorActionPreference = "SilentlyContinue"
 
     if (!$sVIServer) {
         Warn "Connect to VIServer sVIServer:"
-        Inform "VIConnect sVIServer [pathCredentialFile]"
+        Inform "VIConnect sVIServer [credential]"
         Warn "Disconnect from all VIServers:"
         Inform "VIConnect -"
         Warn "VIConnect will use a credential `$Global:VIConnectCredential if it exists."
@@ -86,22 +86,16 @@ function VIConnect
         return
     }#if
 
-    if ($pathCredentialFile) {
-        if (!(Test-Path $pathCredentialFile)) {
-            Complain "Cannot find [$pathCredentialFile]."
-            exit
-        }#if
-        $credential = ReadCredentialFile $pathCredentialFile
-    } else {
+    if (!$credential) {
         if ($Global:VIConnectCredential) {
             $credential = $Global:VIConnectCredential
         } else {
             $credential = Get-Credential
-            if ((Read-Host "Save this credential? [y/n]") -eq "y") {
-                WriteCredentialFile $credential
-                if ($?) {Inform "Wrote encrypted password to [$pathCredentialFile]."}
-            }#if
         }#if
+    }#if
+    if (!$credential) {
+        Complain "There is no credential. Create a `$Global:VIConnectCredential."
+        return
     }#if
 
     Warn "Connecting to VIServer [$sVIServer]..."
